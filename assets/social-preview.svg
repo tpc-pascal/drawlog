@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title description">
+  <title id="title">Drawlog — Your personal lottery ledger</title>
+  <desc id="description">Track Vietlott tickets, draw dates, number combinations, and prizes.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10130f"/>
+      <stop offset="1" stop-color="#1b2418"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#b6d977" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#b6d977" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="640" fill="url(#background)"/>
+  <circle cx="1060" cy="320" r="430" fill="url(#glow)"/>
+  <g fill="none" stroke="#718253" stroke-opacity=".16">
+    <circle cx="1095" cy="320" r="218"/>
+    <circle cx="1095" cy="320" r="278"/>
+    <circle cx="1095" cy="320" r="338"/>
+  </g>
+  <g transform="translate(104 179)">
+    <rect width="84" height="84" rx="24" fill="#b6d977"/>
+    <path d="M27 19h17c19 0 29 9 29 23S63 67 44 67H27V19zm15 36c11 0 17-4 17-13s-6-13-17-13h-2v26h2z" fill="#17200d"/>
+  </g>
+  <text x="218" y="235" fill="#edf0e7" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="72" font-weight="750" letter-spacing="-3">Drawlog</text>
+  <text x="108" y="342" fill="#edf0e7" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="40" font-weight="650">Your personal lottery ledger</text>
+  <text x="110" y="394" fill="#a5ad9b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="23">Track Vietlott tickets, draw dates, and prizes.</text>
+  <g transform="translate(108 456)" font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+    <rect width="164" height="44" rx="22" fill="#b6d977"/>
+    <text x="82" y="29" fill="#17200d" font-size="16" font-weight="700" text-anchor="middle">MEGA 6/55</text>
+    <rect x="178" width="164" height="44" rx="22" fill="#20291b" stroke="#39472f"/>
+    <text x="260" y="29" fill="#d9e8c3" font-size="16" font-weight="700" text-anchor="middle">MEGA 6/45</text>
+    <rect x="356" width="134" height="44" rx="22" fill="#20291b" stroke="#39472f"/>
+    <text x="423" y="29" fill="#d9e8c3" font-size="16" font-weight="700" text-anchor="middle">MAX 3D</text>
+  </g>
+  <g transform="translate(846 169) rotate(7 168 160)">
+    <rect x="0" y="0" width="326" height="374" rx="28" fill="#20291d" stroke="#47533a" stroke-width="2"/>
+    <text x="30" y="49" fill="#a5ad9b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="650" letter-spacing="2">TICKET ENTRY</text>
+    <text x="30" y="91" fill="#edf0e7" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="25" font-weight="700">Mega 6/55</text>
+    <g fill="#b6d977">
+      <circle cx="49" cy="149" r="22"/><circle cx="99" cy="149" r="22"/>
+      <circle cx="149" cy="149" r="22"/><circle cx="199" cy="149" r="22"/>
+      <circle cx="249" cy="149" r="22"/><circle cx="299" cy="149" r="22"/>
+    </g>
+    <g fill="#17200d" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="750" text-anchor="middle">
+      <text x="49" y="155">04</text><text x="99" y="155">12</text>
+      <text x="149" y="155">19</text><text x="199" y="155">27</text>
+      <text x="249" y="155">38</text><text x="299" y="155">51</text>
+    </g>
+    <rect x="29" y="205" width="268" height="1" fill="#394332"/>
+    <text x="30" y="246" fill="#929b8a" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">DRAW DATE</text>
+    <text x="30" y="277" fill="#edf0e7" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="19" font-weight="600">05 / 11 / 2026</text>
+    <rect x="29" y="302" width="267" height="42" rx="12" fill="#b6d977"/>
+    <text x="162" y="329" fill="#17200d" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="750" text-anchor="middle">SAVE TICKET</text>
+  </g>
+  <text x="110" y="583" fill="#68725f" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600" letter-spacing="2">PRIVATE DATA STAYS YOURS</text>
+</svg>

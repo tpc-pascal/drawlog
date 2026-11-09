@@ -1,0 +1,13 @@
+# Personal ticket data — keep outside this public repository
+/tickets.csv
+/draws.csv
+/assets/tickets.csv
+/assets/draws.csv
+/release-data/
+
+# Local environment and generated files
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
