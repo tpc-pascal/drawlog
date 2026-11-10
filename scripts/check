@@ -4,15 +4,23 @@ cd "$(dirname "$0")/.."
 
 case "${1:-all}" in
   all)
-    test -f README.md
-    test -f LICENSE
-    test -f .github/workflows/ci.yml
+    node --test
+    python3 -m unittest discover -s tests -p 'test_space_app.py'
+    node --check web/games.js
+    node --check web/csv.js
+    node --check web/app.js
+    python3 -m py_compile app.py
+    bash -n scripts/release.sh
     ;;
   test)
     node --test
     ;;
   syntax)
-    bash -n scripts/check
+    node --check web/games.js
+    node --check web/csv.js
+    node --check web/app.js
+    python3 -m py_compile app.py
+    bash -n scripts/release.sh
     ;;
   *)
     echo "usage: scripts/check [all|test|syntax]" >&2

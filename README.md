@@ -9,9 +9,8 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
 </p>
 
-Drawlog is a personal Vietlott ticket tracker. Record number combinations,
-purchase and draw dates, voucher pricing, and prize amounts in a compact,
-mobile-friendly interface.
+Drawlog is a personal Vietlott ticket ledger. Record number combinations,
+purchase and draw dates, spending, and prizes in a compact browser interface.
 
 ## Run locally
 
@@ -24,8 +23,8 @@ python3 -m http.server 8000
 Open <http://localhost:8000> in a modern browser. No package installation or
 build step is required.
 
-The current version keeps ticket records in browser memory only. They are lost
-when the page is refreshed or closed.
+Ticket records stay in the current tab's memory only. They are lost when the
+page is refreshed or closed.
 
 ## Features
 
@@ -35,10 +34,12 @@ when the page is refreshed or closed.
 - Record the amount paid, including a zero-cost FREE voucher, draw result,
   prize amount, and an optional note.
 - Review ticket records and session totals for paid, prizes, and net amount.
+- Import a CSV, edit or remove tickets, and export the current list to a new
+  CSV file.
 - Use the responsive form on desktop and mobile screens.
 
-Draw-result lookup, automatic prize matching, CSV import/export, and persistent
-storage are not implemented yet.
+Draw-result lookup, automatic prize matching, and persistent storage are not
+included. The interface does not send ticket data to a server.
 
 ## Data and privacy
 
@@ -56,9 +57,10 @@ repository are public too.
 |---|---|
 | [`index.html`](index.html) | Ticket entry page and live summary |
 | [`web/app.js`](web/app.js) | Form interactions and in-session ticket list |
+| [`web/csv.js`](web/csv.js) | In-memory CSV parsing, validation, and export |
 | [`web/games.js`](web/games.js) | Game definitions and number validation |
 | [`web/styles.css`](web/styles.css) | Responsive interface styling |
-| [`tests/games.test.js`](tests/games.test.js) | Game combination validation tests |
+| [`tests/`](tests/) | Game, CSV, privacy, and hosted-runtime tests |
 | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Automated tests and syntax checks |
 | [`assets/logo.svg`](assets/logo.svg) | Drawlog wordmark |
 | [`assets/social-preview.svg`](assets/social-preview.svg) | Editable social preview artwork |

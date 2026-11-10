@@ -7,6 +7,8 @@ All notable changes to Drawlog are documented here. The format follows
 
 ### Added
 
+- Add a browser-only ticket ledger with product validation, CSV import/export,
+  ticket editing, and session totals.
 - Add centered Drawlog branding, a social preview, and working project badges.
 - Document that personal CSV data must stay in separate private storage.
 - Add the initial project documentation and repository scaffold.

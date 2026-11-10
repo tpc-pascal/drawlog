@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#10130f">
+    <title>Drawlog — Ticket tracker</title>
+    <link rel="stylesheet" href="web/styles.css">
+    <script src="web/games.js" defer></script>
+    <script src="web/csv.js" defer></script>
+    <script src="web/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Drawlog home">
+        <span class="brand-mark" aria-hidden="true">D</span>
+        <span>Drawlog</span>
+      </a>
+      <span class="privacy-label"><span class="privacy-dot"></span>Private by design</span>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <p class="eyebrow">VIETLOTT · PERSONAL LEDGER</p>
+        <h1 id="page-title">Ticket ledger</h1>
+        <p class="hero-copy">A simple record of your tickets, spending, and prizes.</p>
+      </section>
+
+      <section class="summary" aria-label="Ticket totals">
+        <article class="summary-card">
+          <span class="summary-label">Tickets</span>
+          <strong id="ticket-count">0</strong>
+        </article>
+        <article class="summary-card">
+          <span class="summary-label">Paid</span>
+          <strong id="total-paid">0 ₫</strong>
+        </article>
+        <article class="summary-card">
+          <span class="summary-label">Prizes</span>
+          <strong id="total-prizes">0 ₫</strong>
+        </article>
+        <article class="summary-card summary-balance">
+          <span class="summary-label">Net</span>
+          <strong id="net-total">0 ₫</strong>
+        </article>
+      </section>
+
+      <section class="workspace">
+        <section class="panel entry-panel" aria-labelledby="entry-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">NEW TICKET</p>
+              <h2 id="entry-title">Add ticket</h2>
+            </div>
+            <span class="step-badge">01</span>
+          </div>
+
+          <form id="ticket-form" novalidate>
+            <div class="field">
+              <label for="game">Game type</label>
+              <select id="game" name="game"></select>
+            </div>
+
+            <div class="date-grid">
+              <fieldset class="field date-field">
+                <legend>Purchase date</legend>
+                <div class="date-inputs" data-date="purchase">
+                  <input aria-label="Purchase day" inputmode="numeric" maxlength="2" placeholder="DD" required>
+                  <span>/</span>
+                  <input aria-label="Purchase month" inputmode="numeric" maxlength="2" placeholder="MM" required>
+                  <span>/</span>
+                  <input aria-label="Purchase year" inputmode="numeric" maxlength="4" placeholder="YYYY" required>
+                </div>
+              </fieldset>
+              <fieldset class="field date-field">
+                <legend>Draw date</legend>
+                <div class="date-inputs" data-date="draw">
+                  <input aria-label="Draw day" inputmode="numeric" maxlength="2" placeholder="DD" required>
+                  <span>/</span>
+                  <input aria-label="Draw month" inputmode="numeric" maxlength="2" placeholder="MM" required>
+                  <span>/</span>
+                  <input aria-label="Draw year" inputmode="numeric" maxlength="4" placeholder="YYYY" required>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="field">
+              <div class="field-heading">
+                <label>Number combinations</label>
+                <span id="number-hint" class="field-hint"></span>
+              </div>
+              <div id="number-sets" class="number-sets"></div>
+              <button id="add-set" class="button button-quiet add-set" type="button">
+                <span aria-hidden="true">＋</span> Add another
+              </button>
+            </div>
+
+            <div class="money-grid">
+              <div class="field">
+                <label for="paid">Amount paid</label>
+                <div class="money-input">
+                  <input id="paid" name="paid" type="number" min="0" step="1000" value="10000" required>
+                  <span>VND</span>
+                </div>
+              </div>
+              <label class="voucher-toggle" for="free">
+                <input id="free" name="free" type="checkbox">
+                <span class="toggle-track" aria-hidden="true"></span>
+                <span><strong>FREE voucher</strong><small>Set amount paid to zero</small></span>
+              </label>
+            </div>
+
+            <div class="money-grid prize-grid">
+              <div class="field">
+                <label for="result">Draw result</label>
+                <select id="result" name="result">
+                  <option value="pending">Pending draw</option>
+                  <option value="no_prize">No prize</option>
+                  <option value="won">Prize won</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="prize">Prize amount</label>
+                <div class="money-input">
+                  <input id="prize" name="prize" type="number" min="0" step="1000" value="0" required>
+                  <span>VND</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="note">Note <span class="optional">(optional)</span></label>
+              <input id="note" name="note" type="text" maxlength="160" placeholder="Voucher, shop, or anything to remember">
+            </div>
+
+            <p id="form-error" class="form-error" role="alert" hidden></p>
+            <button class="button button-primary submit-button" type="submit">
+              Add ticket <span aria-hidden="true">↗</span>
+            </button>
+          </form>
+        </section>
+
+        <section class="panel tickets-panel" aria-labelledby="tickets-title">
+          <div class="panel-heading tickets-heading">
+            <div>
+              <p class="eyebrow">YOUR ACTIVITY</p>
+              <h2 id="tickets-title">Tickets</h2>
+            </div>
+            <span id="record-count" class="record-count">0 records</span>
+          </div>
+          <div class="csv-actions" aria-label="CSV data">
+            <label class="button button-quiet csv-import" for="csv-file">Import CSV</label>
+            <input id="csv-file" type="file" accept=".csv,text/csv" hidden>
+            <button id="export-csv" class="button button-quiet" type="button" disabled>Export CSV</button>
+          </div>
+          <p id="csv-status" class="csv-status" role="status" aria-live="polite" hidden></p>
+          <p id="csv-error" class="form-error" role="alert" hidden></p>
+          <div id="empty-state" class="empty-state">
+            <span class="empty-icon" aria-hidden="true">＋</span>
+            <h3>No tickets yet</h3>
+            <p>Add your first ticket to start your personal ledger.</p>
+          </div>
+          <div id="ticket-list" class="ticket-list" aria-live="polite"></div>
+          <p class="draft-note">
+            <span aria-hidden="true">ⓘ</span>
+            Records stay in this tab's memory only. Import replaces the current list;
+            export downloads a new CSV without changing your input file.
+          </p>
+        </section>
+      </section>
+    </main>
+    <footer>
+      <span>DRAWLOG <span class="footer-separator">/</span> PERSONAL LEDGER</span>
+      <span>Not affiliated with Vietlott</span>
+    </footer>
+  </body>
+</html>
