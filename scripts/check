@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+case "${1:-all}" in
+  all)
+    test -f README.md
+    test -f LICENSE
+    test -f .github/workflows/ci.yml
+    ;;
+  test)
+    node --test
+    ;;
+  syntax)
+    bash -n scripts/check
+    ;;
+  *)
+    echo "usage: scripts/check [all|test|syntax]" >&2
+    exit 2
+    ;;
+esac
