@@ -1,0 +1,126 @@
+name: Hugging Face Space — Deploy & Keep-Alive
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Action to run"
+        type: choice
+        required: true
+        default: deploy
+        options:
+          - deploy
+          - keep-alive
+          - set-hardware
+      hardware:
+        description: "Hardware to request (set-hardware only, e.g. cpu-basic)"
+        required: false
+        default: cpu-basic
+
+env:
+  HF_REPO: tpc-pascal/drawlog
+
+jobs:
+  deploy:
+    name: Deploy to Space
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'release' ||
+      (github.event_name == 'workflow_dispatch' && inputs.action == 'deploy')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Assemble and Push Gradio App to the Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          set -euo pipefail
+          temp_dir="$(mktemp -d)"
+          trap 'rm -rf "$temp_dir"' EXIT
+
+          cp app.py index.html requirements.txt "$temp_dir/"
+          cp -R web "$temp_dir/web"
+          cp -R scripts "$temp_dir/scripts"
+          cp space/README.md "$temp_dir/README.md"
+
+          cd "$temp_dir"
+          git init --initial-branch=main
+          git config user.name "tpc-pascal"
+          git config user.email "tpcmemory2005@gmail.com"
+          git add --all
+          git commit -m "ci: deploy Drawlog Gradio app"
+
+          cat > "$RUNNER_TEMP/hf-askpass" <<'EOF'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' "hf_user" ;;
+            *) printf '%s\n' "$HF_TOKEN" ;;
+          esac
+          EOF
+          chmod 700 "$RUNNER_TEMP/hf-askpass"
+          GIT_ASKPASS="$RUNNER_TEMP/hf-askpass" \
+            GIT_TERMINAL_PROMPT=0 \
+            git push --force "https://huggingface.co/spaces/${HF_REPO}" main
+
+  keep-alive:
+    name: Restart the Space
+    if: >-
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && inputs.action == 'keep-alive')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restart the Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          response_file="$(mktemp)"
+          trap 'rm -f "$response_file"' EXIT
+          status="$(curl --silent --show-error --output "$response_file" --write-out "%{http_code}" \
+            --request POST \
+            "https://huggingface.co/api/spaces/${HF_REPO}/restart" \
+            --header "Authorization: Bearer ${HF_TOKEN}")"
+          if [ "$status" = "200" ] || [ "$status" = "201" ]; then
+            echo "Space restart requested (HTTP $status)."
+          else
+            cat "$response_file"
+            echo "Space restart failed with HTTP status $status" >&2
+            exit 1
+          fi
+
+  set-hardware:
+    name: Set Space Hardware
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'set-hardware'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Hugging Face Hub
+        run: pip install -q "huggingface_hub>=0.30"
+
+      - name: Request Hardware
+        env:
+          HW: ${{ inputs.hardware }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os
+          from huggingface_hub import HfApi
+
+          api = HfApi(token=os.environ["HF_TOKEN"])
+          hardware = os.environ["HW"]
+          repo = os.environ["HF_REPO"]
+          print(f"Requesting hardware {hardware!r} for {repo}")
+          api.request_space_hardware(repo, hardware)
+          print("OK — hardware change requested")
+          PY
