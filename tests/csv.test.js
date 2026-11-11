@@ -24,6 +24,7 @@ test("imports valid tickets with flexible column order and optional notes", () =
     purchaseDate: "2026-11-09",
     drawDate: "2026-11-12",
     combinations: [["01", "09", "18", "27", "41", "55"]],
+    drawId: "",
     paid: 10000,
     prize: 50000,
     result: "won",
@@ -60,6 +61,20 @@ test("imports each supported product's combination format", () => {
     ["keno", [["01", "08", "80"]]],
   ]);
   assert.deepEqual(parseTickets(stringifyTickets(tickets)), tickets);
+});
+
+test("imports and exports an optional draw number while accepting older CSV files", () => {
+  const withDrawId = parseTickets(
+    `${header},draw_id\n` +
+      `bingo_18,2026-11-09,2026-11-09,number_3,10000,0,pending,,0195579`,
+  );
+  assert.equal(withDrawId[0].drawId, "0195579");
+  assert.deepEqual(parseTickets(stringifyTickets(withDrawId)), withDrawId);
+  assert.equal(parseTickets(`${header}\nmega_6_45,2026-11-09,2026-11-12,"01 09 18 27 41 45",10000,0,pending,`)[0].drawId, "");
+  assert.throws(
+    () => parseTickets(`${header},draw_id\nmega_6_45,2026-11-09,2026-11-12,"01 09 18 27 41 45",10000,0,pending,,abc`),
+    /draw_id must contain 1 to 12 digits/,
+  );
 });
 
 test("rejects malformed CSV quoting and invalid columns", () => {

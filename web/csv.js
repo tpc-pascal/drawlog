@@ -2,8 +2,8 @@
   "use strict";
 
   const { games, normalizeGameId, validateCombinations } = root.DrawlogGames;
-  const headers = ["game", "purchase_date", "draw_date", "combinations", "paid", "prize", "result", "note"];
-  const requiredHeaders = headers.filter((header) => header !== "note");
+  const headers = ["game", "purchase_date", "draw_date", "draw_id", "combinations", "paid", "prize", "result", "note"];
+  const requiredHeaders = headers.filter((header) => header !== "note" && header !== "draw_id");
   const results = new Set(["pending", "no_prize", "won"]);
 
   function parseRows(text) {
@@ -158,6 +158,10 @@
       const purchaseDate = normalizeDate(row[column.purchase_date], rowNumber, "purchase_date");
       const drawDate = normalizeDate(row[column.draw_date], rowNumber, "draw_date");
       if (drawDate < purchaseDate) throw new Error(`Row ${rowNumber}: draw_date cannot be earlier than purchase_date.`);
+      const drawId = column.draw_id === undefined ? "" : row[column.draw_id].trim();
+      if (drawId && !/^\d{1,12}$/.test(drawId)) {
+        throw new Error(`Row ${rowNumber}: draw_id must contain 1 to 12 digits.`);
+      }
       const combinations = parseCombinations(row[column.combinations], game, rowNumber);
       const paid = parseAmount(row[column.paid], "paid", rowNumber);
       const prize = parseAmount(row[column.prize], "prize", rowNumber);
@@ -177,7 +181,7 @@
       const note = column.note === undefined ? "" : row[column.note];
       if (note.length > 160) throw new Error(`Row ${rowNumber}: note must be 160 characters or fewer.`);
 
-      imported.push({ game, purchaseDate, drawDate, combinations, paid, prize, result, note });
+      imported.push({ game, purchaseDate, drawDate, drawId, combinations, paid, prize, result, note });
     }
     return imported;
   }
@@ -195,6 +199,7 @@
         ticket.game,
         ticket.purchaseDate,
         ticket.drawDate,
+        ticket.drawId || "",
         ticket.combinations.map((combination) => combination.join(" ")).join("; "),
         ticket.paid,
         ticket.prize,

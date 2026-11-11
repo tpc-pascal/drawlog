@@ -19,7 +19,7 @@ test("provides the supported game configurations", () => {
   assert.equal(games.mega_6_45.max, 45);
   assert.equal(games.lotto_5_35.count, 6);
   assert.equal(games.lotto_5_35.specialMax, 12);
-  assert.equal(games.bingo_18.choices.length, 32);
+  assert.equal(games.bingo_18.choices.length, 38);
   assert.equal(games.max_3d.kind, "three_digit");
   assert.equal(games.max_3d_pro.count, 2);
   assert.equal(games.keno.minCount, 1);
@@ -79,10 +79,11 @@ test("validates Lotto 5/35 main and special numbers separately", () => {
 
 test("validates Bingo18 outcome selections", () => {
   assert.deepEqual(
-    validateCombinations("bingo_18", [["big"], ["sum_18"], ["pair_3"], ["triple_6"]]),
+    validateCombinations("bingo_18", [["number_3"], ["tie"], ["sum_18"], ["pair_3"], ["triple_6"], ["any_triple"]]),
     [],
   );
   assert.match(validateCombinations("bingo_18", [["sum_19"]])[0], /supported Bingo18 outcome/);
+  assert.deepEqual(validateCombinations("bingo_18", [["even"], ["odd"]]), []);
 });
 
 test("accepts three-digit values including leading zeroes", () => {

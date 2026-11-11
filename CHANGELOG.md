@@ -10,6 +10,12 @@ All notable changes to Drawlog are documented here. The format follows
 - Add ticket entry and validation for Power 6/55, Lotto 5/35, Bingo18,
   Max 3D Pro, and Keno, while retaining historical Mega 6/55 CSV imports.
 - Add an hourly Vietlott results workflow and a read-only latest-results panel.
+- Add per-product official result fetching, validated third-party fallbacks for
+  selected products, and last-verified snapshot retention when sources fail.
+- Reorder the main tabs to Add ticket, Latest results, and Tickets.
+- Automatically check pending tickets against official historical results using
+  metadata-only product and draw-date lookups; ticket combinations stay in the
+  browser.
 
 ## [v0.0.1] - 2026-11-09
 

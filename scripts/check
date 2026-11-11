@@ -5,12 +5,11 @@ cd "$(dirname "$0")/.."
 case "${1:-all}" in
   all)
     node --test
-    python3 -m unittest discover -s tests -p 'test_space_app.py'
-    python3 -m unittest discover -s tests -p 'test_latest_draws.py'
-    python3 -m unittest discover -s tests -p 'test_ticket_history.py'
+    python3 -m unittest discover -s tests -p 'test_*.py'
     node --check web/games.js
     node --check web/csv.js
     node --check web/latest-results.js
+    node --check web/ticket-check.js
     node --check web/app.js
     python3 -m py_compile app.py
     python3 -m py_compile scripts/ticket_history.py
@@ -24,6 +23,7 @@ case "${1:-all}" in
     node --check web/games.js
     node --check web/csv.js
     node --check web/latest-results.js
+    node --check web/ticket-check.js
     node --check web/app.js
     python3 -m py_compile app.py
     python3 -m py_compile scripts/ticket_history.py

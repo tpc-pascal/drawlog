@@ -1,12 +1,17 @@
 import json
+import logging
 import re
 from pathlib import Path
+from typing import Any
 
 import gradio as gr
 import spaces
 
+from scripts.ticket_history import lookup_official_draws
+
 
 ROOT = Path(__file__).resolve().parent
+LOGGER = logging.getLogger(__name__)
 BODY_PATTERN = re.compile(r"<body(?:\s[^>]*)?>(.*?)</body\s*>", re.IGNORECASE | re.DOTALL)
 GRADIO_CSS = """
 .gradio-container {
@@ -28,6 +33,11 @@ GRADIO_CSS = """
 #drawlog-app a {
   color: inherit !important;
   text-decoration: none !important;
+}
+
+#drawlog-app .ticket-check-verified a {
+  color: var(--green) !important;
+  text-decoration: underline !important;
 }
 
 #drawlog-app .button-quiet {
@@ -67,7 +77,7 @@ def build_styles() -> str:
 def build_javascript() -> str:
     scripts = [
         (ROOT / "web" / filename).read_text(encoding="utf-8")
-        for filename in ("games.js", "csv.js", "latest-results.js", "app.js")
+        for filename in ("games.js", "csv.js", "latest-results.js", "ticket-check.js", "app.js")
     ]
     return f"""() => {{
       const scripts = {json.dumps(scripts)};
@@ -88,6 +98,14 @@ def build_javascript() -> str:
     }}"""
 
 
+def lookup_official_draws_api(game_id: str, draw_date: str) -> dict[str, Any]:
+    try:
+        return {"draws": lookup_official_draws(game_id, draw_date), "error": None}
+    except Exception as error:
+        LOGGER.exception("Draw history lookup failed for %s on %s", game_id, draw_date)
+        return {"draws": [], "error": f"{type(error).__name__}: {error}"}
+
+
 def build_app() -> gr.Blocks:
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     body = BODY_PATTERN.search(html)
@@ -96,6 +114,12 @@ def build_app() -> gr.Blocks:
 
     with gr.Blocks(title="Drawlog — Ticket tracker", analytics_enabled=False) as demo:
         gr.HTML(body.group(1), elem_id="drawlog-app", show_label=False, container=False)
+        gr.api(
+            lookup_official_draws_api,
+            api_name="lookup_official_draws",
+            api_visibility="undocumented",
+            time_limit=120,
+        )
 
     return demo
 

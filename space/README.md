@@ -18,14 +18,19 @@ A browser-based personal Vietlott ticket ledger.
 The ledger supports Mega 6/55, Mega 6/45, Power 6/55, Lotto 5/35, Bingo18,
 Max 3D, Max 3D Pro, and Keno.
 
-The interface includes the latest published results from Vietlott for
-information only. It never checks or changes personal tickets.
+The interface includes the latest published results from Vietlott and can
+automatically check pending tickets against historical draws.
 
 Ticket records and imported CSV files stay in the current browser tab. Drawlog
-uses Gradio only to host its static interface; it does not send records to an
-application backend or save them to browser storage. Refreshing or closing the
-tab clears the records. This is a public Space; the hosting provider may
-process ordinary network request metadata.
+sends only a product code and draw date to its Gradio host for historical
+lookups. Ticket numbers and combinations are matched in the browser and are
+never sent to the host or Vietlott. Drawlog does not save ticket data to browser
+storage; refreshing or closing the tab clears the records. This is a public
+Space; the hosting provider may process ordinary network request metadata.
+
+Vietlott is the primary history source. If Vietlott denies a lookup, Mega 6/45
+and Power 6/55 can use a clearly labeled xoso.net.vn fallback. Verify secondary
+results with Vietlott before acting on them.
 
 Import a CSV, edit or remove records, then export a new CSV file. The selected
 input file is never modified.

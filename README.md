@@ -16,8 +16,12 @@ Use it locally or open the [hosted Drawlog Space](https://tpc-pascal-drawlog.hf.
 
 Ticket records stay in the current tab's memory. Drawlog does not upload them or
 save them to browser storage; refreshing or closing the tab clears the records.
-The Space uses Gradio to serve the interface, while ticket records and imported
-CSV files are still processed only in your browser and are never sent to it.
+Automatic ticket checking sends only the product code and draw date to Drawlog's
+Gradio host. It checks Vietlott first and uses clearly labeled xoso.net.vn
+results as a secondary fallback for Mega 6/45 and Power 6/55 when Vietlott
+denies access. Ticket numbers and combinations are compared in your browser and
+are never sent to the host or Vietlott. The plain static-server version does
+not provide automatic historical checks.
 
 ## Features
 
@@ -41,24 +45,38 @@ python3 -m http.server 8000
 ```
 
 Open <http://localhost:8000>. No package installation or build step is required.
+Historical ticket checking is available on the hosted Space, not this static
+server.
 
 ## Hosted Space
 
 Open [Drawlog on Hugging Face](https://tpc-pascal-drawlog.hf.space)
-to use the same app without installing anything. The Space is public. It serves
-the app files only; ticket records and CSV contents remain in your browser tab
-and are not uploaded or saved by Drawlog. As with other hosted services, the
-hosting provider may process ordinary network request metadata.
+to use the same app without installing anything. The Space is public and hosts
+the app and its metadata-only historical-result lookup. Ticket records and CSV
+contents remain in your browser tab and are not uploaded or saved by Drawlog.
+As with other hosted services, the hosting provider may process ordinary
+network request metadata.
 
 ## Latest draw results
 
 Drawlog includes a public snapshot of the latest results published on the
 [official Vietlott website](https://vietlott.vn/). A GitHub Actions workflow
-checks the homepage hourly, validates results for all seven products, and
-updates the hosted Space when any result changes. The app displays these results
-for reference only; it does not compare them with or change personal tickets.
-The snapshot is bundled with the app, so viewing it makes no background network
-request and does not send ticket data.
+checks the homepage and, if needed, each official product page hourly. For
+Mega 6/45, Power 6/55, Max 3D, Max 3D Pro, and Keno, it can use
+[xoso.net.vn](https://xoso.net.vn/xs-vietlott.html) as a secondary source when
+the official pages are unavailable. Fallback results are validated and rejected
+if they predate or conflict with the last verified snapshot. Lotto 5/35 and
+Bingo18 currently rely on Vietlott; when no verified source is available, the
+last snapshot is retained and marked as old rather than replaced with
+unverified data.
+
+The workflow updates the hosted Space when results or their verification status
+change. The latest-results snapshot is bundled with the app, so viewing it makes
+no background network request. Checking a pending ticket makes a separate
+request with only its product code and draw date; draw data is compared against
+the ticket in your browser. Secondary sources are identified in the ticket
+record and should be verified against Vietlott. The ticket record and
+combinations are not sent to the host or Vietlott.
 
 ## CSV
 
@@ -89,8 +107,10 @@ selected input file.
 | [`web/games.js`](web/games.js) | Supported games and combination validation |
 | [`web/csv.js`](web/csv.js) | In-memory CSV parsing, validation, and export |
 | [`web/latest-results.js`](web/latest-results.js) | Public latest-draw snapshot bundled with the app |
+| [`web/ticket-check.js`](web/ticket-check.js) | Browser-side prize matching and metadata-only history requests |
 | [`web/styles.css`](web/styles.css) | Responsive interface |
-| [`tests/`](tests/) | Game validation, CSV, and privacy tests |
+| [`tests/`](tests/) | Game validation, CSV, privacy, and historical-check tests |
+| [`scripts/ticket_history.py`](scripts/ticket_history.py) | Metadata-only historical lookup with a labeled fallback |
 | [`scripts/update_latest_draws.py`](scripts/update_latest_draws.py) | Official result parsing and snapshot generation |
 | [`app.py`](app.py) and [`requirements.txt`](requirements.txt) | Gradio host for the browser-only interface |
 | [`.github/workflows/`](.github/workflows/) | CI, release, and Space maintenance workflows |

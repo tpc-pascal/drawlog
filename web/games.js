@@ -2,10 +2,13 @@
   "use strict";
 
   const bingo18Choices = [
-    { value: "big", label: "Big" },
-    { value: "small", label: "Small" },
-    { value: "even", label: "Even" },
-    { value: "odd", label: "Odd" },
+    ...Array.from({ length: 6 }, (_, index) => {
+      const number = index + 1;
+      return { value: `number_${number}`, label: `Number ${number}` };
+    }),
+    { value: "big", label: "Big (total 12–18)" },
+    { value: "tie", label: "Tie (total 10–11)" },
+    { value: "small", label: "Small (total 3–9)" },
     ...Array.from({ length: 16 }, (_, index) => {
       const total = index + 3;
       return { value: `sum_${total}`, label: `Total ${total}` };
@@ -18,6 +21,11 @@
       const number = index + 1;
       return { value: `triple_${number}`, label: `Triple ${number}${number}${number}` };
     }),
+    { value: "any_triple", label: "Any triple" },
+  ];
+  const bingo18LegacyChoices = [
+    { value: "even", label: "Even (legacy outcome)" },
+    { value: "odd", label: "Odd (legacy outcome)" },
   ];
 
   const games = {
@@ -52,7 +60,8 @@
       label: "Bingo18",
       kind: "bingo18",
       choices: bingo18Choices,
-      hint: "Choose a Bingo18 outcome: size, parity, total, pair, or triple.",
+      legacyChoices: bingo18LegacyChoices,
+      hint: "Choose one of the 38 official Bingo18 outcomes.",
     },
     max_3d: {
       label: "Max 3D",
@@ -103,7 +112,10 @@
       }
 
       if (game.kind === "bingo18") {
-        if (combination.length !== 1 || !game.choices.some((choice) => choice.value === combination[0])) {
+        if (
+          combination.length !== 1 ||
+          ![...game.choices, ...game.legacyChoices].some((choice) => choice.value === combination[0])
+        ) {
           errors.push(`${label} must be a supported Bingo18 outcome.`);
         }
         return;

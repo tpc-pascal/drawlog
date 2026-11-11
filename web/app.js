@@ -3,6 +3,7 @@
 
   const { games, validateCombinations } = window.DrawlogGames;
   const { parseTickets, stringifyTickets } = window.DrawlogCsv;
+  const { fetchDrawHistory, checkTicket: compareTicket } = window.DrawlogTicketCheck;
   const form = document.getElementById("ticket-form");
   const gameSelect = document.getElementById("game");
   const numberSets = document.getElementById("number-sets");
@@ -18,6 +19,9 @@
   const currency = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
   const latestResults = window.DrawlogResults.products;
   const latestResultsList = document.getElementById("latest-results-list");
+  const resultsUpdated = document.getElementById("results-updated");
+  const tabList = document.querySelector('[role="tablist"]');
+  const tabs = Array.from(tabList.querySelectorAll('[role="tab"]'));
 
   Object.entries(games).forEach(([id, game]) => {
     const option = document.createElement("option");
@@ -161,7 +165,8 @@
   function formatCombination(gameId, combination) {
     const game = games[gameId];
     if (game.kind === "bingo18") {
-      return game.choices.find((choice) => choice.value === combination[0])?.label || combination[0];
+      return [...game.choices, ...game.legacyChoices]
+        .find((choice) => choice.value === combination[0])?.label || combination[0];
     }
     if (game.kind === "lotto_special") {
       return `${combination.slice(0, game.mainCount).join(" · ")} · SP ${combination[game.mainCount]}`;
@@ -183,6 +188,36 @@
     return `${currency.format(amount)} ₫`;
   }
 
+  function activateTab(tab, moveFocus = false) {
+    tabs.forEach((currentTab) => {
+      const selected = currentTab === tab;
+      currentTab.setAttribute("aria-selected", String(selected));
+      currentTab.tabIndex = selected ? 0 : -1;
+      document.getElementById(currentTab.getAttribute("aria-controls")).hidden = !selected;
+    });
+    if (moveFocus) tab.focus();
+  }
+
+  tabList.addEventListener("click", (event) => {
+    const tab = event.target.closest('[role="tab"]');
+    if (tab && tabList.contains(tab)) activateTab(tab);
+  });
+
+  tabList.addEventListener("keydown", (event) => {
+    const currentIndex = tabs.indexOf(event.target);
+    if (currentIndex === -1) return;
+
+    let nextIndex;
+    if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % tabs.length;
+    else if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = tabs.length - 1;
+    else return;
+
+    event.preventDefault();
+    activateTab(tabs[nextIndex], true);
+  });
+
   function makeResultNumbers(numbers) {
     const list = document.createElement("div");
     list.className = "latest-result-numbers";
@@ -197,6 +232,18 @@
 
   function renderLatestResults() {
     latestResultsList.replaceChildren();
+    const updatedAt = window.DrawlogResults.updated_at;
+    if (updatedAt && Number.isFinite(Date.parse(updatedAt))) {
+      const updatedDate = new Date(updatedAt);
+      resultsUpdated.textContent = `Snapshot updated ${new Intl.DateTimeFormat("en", {
+        dateStyle: "medium",
+        timeStyle: "short",
+        timeZone: "UTC",
+      }).format(updatedDate)} UTC`;
+    } else {
+      resultsUpdated.textContent = "Showing the last verified snapshot";
+    }
+
     latestResults.forEach((result) => {
       const card = document.createElement("article");
       card.className = "latest-result-card";
@@ -209,13 +256,13 @@
       source.href = result.source_url;
       source.target = "_blank";
       source.rel = "noopener noreferrer";
-      source.textContent = "Official";
-      source.setAttribute("aria-label", `${result.label} official results`);
+      source.textContent = result.source_label || "Vietlott";
+      source.setAttribute("aria-label", `${result.label} results from ${source.textContent}`);
       heading.append(game, source);
 
       const draw = document.createElement("p");
       draw.className = "latest-result-draw";
-      draw.textContent = `#${result.draw_id} · ${formatDate(result.draw_date)}`;
+      draw.textContent = `#${result.draw_id} · ${formatDate(result.draw_date)}${result.stale ? " · Last verified result" : ""}`;
       card.append(heading, draw);
 
       if (result.prize_groups) {
@@ -280,6 +327,9 @@
           <label>Purchase date<input name="purchaseDate" type="date" required></label>
           <label>Draw date<input name="drawDate" type="date" required></label>
         </div>
+        <label>Draw number <small>Optional; needed to distinguish games with multiple draws per day.</small>
+          <input name="drawId" type="text" inputmode="numeric" maxlength="12">
+        </label>
         <label>Combinations <small>Separate numbers with spaces and combinations with semicolons.</small>
           <textarea name="combinations" rows="3" required></textarea>
         </label>
@@ -306,6 +356,7 @@
     editor.elements.namedItem("game").value = ticket.game;
     editor.elements.namedItem("purchaseDate").value = ticket.purchaseDate;
     editor.elements.namedItem("drawDate").value = ticket.drawDate;
+    editor.elements.namedItem("drawId").value = ticket.drawId || "";
     editor.elements.namedItem("combinations").value = ticket.combinations
       .map((combination) => combination.join(" "))
       .join("; ");
@@ -321,6 +372,7 @@
       const game = editor.elements.namedItem("game").value;
       const purchaseDate = editor.elements.namedItem("purchaseDate").value;
       const drawDate = editor.elements.namedItem("drawDate").value;
+      const drawId = editor.elements.namedItem("drawId").value.trim();
       if (!isValidIsoDate(purchaseDate) || !isValidIsoDate(drawDate)) {
         error.textContent = "Enter valid purchase and draw dates.";
         error.hidden = false;
@@ -363,8 +415,27 @@
         return;
       }
 
-      Object.assign(ticket, { game, purchaseDate, drawDate, combinations, paid, prize, result, note });
+      if (drawId && !/^\d{1,12}$/.test(drawId)) {
+        error.textContent = "Draw number must contain 1 to 12 digits.";
+        error.hidden = false;
+        return;
+      }
+
+      const drawChanged = game !== ticket.game ||
+        drawDate !== ticket.drawDate ||
+        drawId !== (ticket.drawId || "") ||
+        JSON.stringify(combinations) !== JSON.stringify(ticket.combinations);
+      Object.assign(ticket, { game, purchaseDate, drawDate, drawId, combinations, paid, prize, result, note });
+      if (drawChanged) {
+        ticket.result = "pending";
+        ticket.prize = 0;
+        ticket.autoChecked = false;
+        ticket.checkState = "";
+        ticket.checkMessage = "";
+        ticket.drawResults = null;
+      }
       renderTickets();
+      if (drawChanged) void checkTicketResult(ticket);
     });
     return details;
   }
@@ -412,6 +483,70 @@
           <strong>${formatMoney(ticket.prize)} <small>prize</small></strong>
         </div>
         <div class="ticket-paid">Paid ${formatMoney(ticket.paid)} · Purchased ${formatDate(ticket.purchaseDate)}</div>`;
+      if (ticket.checkMessage || ticket.checkState === "choose_draw" || ticket.result === "pending") {
+        const checkPanel = document.createElement("div");
+        checkPanel.className = "ticket-check-panel";
+        if (ticket.checkMessage) {
+          const message = document.createElement("p");
+          message.className = `ticket-check-message${ticket.checkState === "error" ? " is-error" : ""}`;
+          message.textContent = ticket.checkMessage;
+          checkPanel.append(message);
+        }
+        if (ticket.checkState === "choose_draw" && ticket.drawResults?.length) {
+          const label = document.createElement("label");
+          label.className = "ticket-draw-picker";
+          label.textContent = "Draw number on ticket";
+          const select = document.createElement("select");
+          select.setAttribute("aria-label", "Select the draw number printed on your ticket");
+          const placeholder = document.createElement("option");
+          placeholder.value = "";
+          placeholder.textContent = "Select a draw";
+          select.append(placeholder);
+          ticket.drawResults.forEach((draw) => {
+            const option = document.createElement("option");
+            option.value = draw.draw_id;
+            option.textContent = `#${draw.draw_id}`;
+            select.append(option);
+          });
+          select.value = ticket.drawId || "";
+          select.addEventListener("change", () => {
+            const selectedDraw = ticket.drawResults.find((draw) => draw.draw_id === select.value);
+            if (selectedDraw) applyDrawCheck(ticket, selectedDraw);
+          });
+          label.append(select);
+          checkPanel.append(label);
+        }
+        if (ticket.result === "pending") {
+          const checkButton = document.createElement("button");
+          checkButton.type = "button";
+          checkButton.className = "button button-quiet ticket-check-button";
+          checkButton.textContent = ticket.checkState === "checking" ? "Checking…" : "Check result";
+          checkButton.disabled = ticket.checkState === "checking";
+          checkButton.addEventListener("click", () => { void checkTicketResult(ticket); });
+          checkPanel.append(checkButton);
+        }
+        card.append(checkPanel);
+      } else if (ticket.autoChecked) {
+        const checkedDraw = ticket.drawResults?.find((draw) => draw.draw_id === ticket.drawId);
+        const sourceLabel = checkedDraw?.source_label || "Vietlott";
+        const verified = document.createElement("p");
+        verified.className = "ticket-check-verified";
+        if (sourceLabel === "Vietlott") {
+          verified.textContent = `Checked against official draw #${ticket.drawId}. Verify the prize amount before recording it.`;
+        } else {
+          verified.textContent =
+            `Checked against secondary source ${sourceLabel} draw #${ticket.drawId}. Verify on Vietlott before recording a prize. `;
+          if (checkedDraw?.source_url) {
+            const sourceLink = document.createElement("a");
+            sourceLink.href = checkedDraw.source_url;
+            sourceLink.target = "_blank";
+            sourceLink.rel = "noopener noreferrer";
+            sourceLink.textContent = "View source.";
+            verified.append(sourceLink);
+          }
+        }
+        card.append(verified);
+      }
       card.querySelector(".delete-ticket").addEventListener("click", () => {
         tickets.splice(tickets.indexOf(ticket), 1);
         renderTickets();
@@ -427,6 +562,60 @@
     document.getElementById("total-prizes").textContent = formatMoney(prizeTotal);
     document.getElementById("net-total").textContent = formatMoney(prizeTotal - paidTotal);
     exportButton.disabled = tickets.length === 0;
+  }
+
+  function applyDrawCheck(ticket, draw) {
+    ticket.drawId = draw.draw_id;
+    const outcome = compareTicket(ticket.game, ticket.combinations, draw);
+    if (outcome === null) {
+      ticket.checkState = "unverified";
+      ticket.checkMessage = "This ticket type cannot be verified confidently from the published result. The record remains pending.";
+      ticket.autoChecked = false;
+    } else {
+      ticket.result = outcome;
+      ticket.checkState = "checked";
+      ticket.checkMessage = "";
+      ticket.autoChecked = true;
+    }
+    renderTickets();
+  }
+
+  async function checkTicketResult(ticket) {
+    if (ticket.checkState === "checking") return;
+    ticket.checkState = "checking";
+    ticket.checkMessage = "Looking up published draw data. Ticket numbers stay in this browser.";
+    renderTickets();
+    try {
+      const draws = await fetchDrawHistory(ticket.game, ticket.drawDate);
+      if (draws.length === 0) {
+        ticket.checkState = "unavailable";
+        ticket.checkMessage = "No official draw is available for this product and date yet.";
+        return;
+      }
+      ticket.drawResults = draws;
+      const selectedDraw = ticket.drawId
+        ? draws.find((draw) => draw.draw_id === ticket.drawId)
+        : draws.length === 1 ? draws[0] : null;
+      if (!selectedDraw) {
+        ticket.checkState = "choose_draw";
+        ticket.checkMessage = draws.length === 1
+          ? `Draw #${ticket.drawId} was not found for this date. Select the draw number printed on your ticket.`
+          : `${draws.length} draws were published that day. Select the draw number printed on your ticket.`;
+        return;
+      }
+      applyDrawCheck(ticket, selectedDraw);
+    } catch (error) {
+      ticket.checkState = "error";
+      ticket.checkMessage = `Could not verify this ticket: ${error.message}`;
+    } finally {
+      if (ticket.checkState !== "checking") renderTickets();
+    }
+  }
+
+  function checkPendingTickets(importedTickets) {
+    importedTickets
+      .filter((ticket) => ticket.result === "pending")
+      .forEach((ticket) => { void checkTicketResult(ticket); });
   }
 
   function showCsvMessage(message, isError) {
@@ -464,6 +653,7 @@
       tickets.length = 0;
       imported.forEach((ticket) => tickets.push(ticket));
       renderTickets();
+      checkPendingTickets(imported);
       showCsvMessage(
         `Imported ${imported.length} ${imported.length === 1 ? "ticket" : "tickets"}. Data remains in this tab's memory only.`,
         false,
@@ -528,17 +718,24 @@
       return;
     }
 
-    tickets.unshift({
+    const ticket = {
       game: gameSelect.value,
       purchaseDate,
       drawDate,
+      drawId: document.getElementById("draw-id").value.trim(),
       combinations,
       paid,
       prize,
       result,
       note: document.getElementById("note").value.trim(),
-    });
+    };
+    if (ticket.drawId && !/^\d{1,12}$/.test(ticket.drawId)) {
+      showError("Draw number must contain 1 to 12 digits.");
+      return;
+    }
+    tickets.unshift(ticket);
     renderTickets();
+    if (ticket.result === "pending") void checkTicketResult(ticket);
     form.reset();
     paidInput.value = "10000";
     paidInput.readOnly = false;

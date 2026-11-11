@@ -9,6 +9,7 @@
     <script src="web/games.js" defer></script>
     <script src="web/csv.js" defer></script>
     <script src="web/latest-results.js" defer></script>
+    <script src="web/ticket-check.js" defer></script>
     <script src="web/app.js" defer></script>
   </head>
   <body>
@@ -46,146 +47,170 @@
         </article>
       </section>
 
-      <section class="panel latest-results-panel" aria-labelledby="latest-results-title">
+      <div class="main-tabs" role="tablist" aria-label="Drawlog sections">
+        <button id="entry-tab" class="main-tab" type="button" role="tab"
+          aria-selected="true" aria-controls="entry-panel" tabindex="0">
+          Add ticket
+        </button>
+        <button id="results-tab" class="main-tab" type="button" role="tab"
+          aria-selected="false" aria-controls="results-panel" tabindex="-1">
+          Latest results
+        </button>
+        <button id="tickets-tab" class="main-tab" type="button" role="tab"
+          aria-selected="false" aria-controls="tickets-panel" tabindex="-1">
+          Tickets
+        </button>
+      </div>
+
+      <section id="results-panel" class="panel latest-results-panel main-tabpanel"
+        role="tabpanel" aria-labelledby="results-tab" tabindex="0" hidden>
         <div class="panel-heading">
           <div>
             <p class="eyebrow">DRAW RESULTS</p>
             <h2 id="latest-results-title">Latest results</h2>
           </div>
-          <span class="results-cadence">Updated hourly</span>
+          <span id="results-updated" class="results-cadence">Checking published results…</span>
         </div>
         <div id="latest-results-list" class="latest-results-grid" aria-live="polite"></div>
         <p class="results-disclaimer">
-          Results are for reference only. Drawlog does not automatically check or change your tickets.
+          Results are for reference only. Check the linked source before claiming a prize.
+          Auto-check sends only the product and draw date to Drawlog; ticket numbers stay in this browser.
+          If Vietlott blocks a lookup, a secondary source is labeled and should be confirmed with Vietlott.
         </p>
       </section>
 
-      <section class="workspace">
-        <section class="panel entry-panel" aria-labelledby="entry-title">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">NEW TICKET</p>
-              <h2 id="entry-title">Add ticket</h2>
-            </div>
-            <span class="step-badge">01</span>
+      <section id="tickets-panel" class="panel tickets-panel main-tabpanel"
+        role="tabpanel" aria-labelledby="tickets-tab" tabindex="0" hidden>
+        <div class="panel-heading tickets-heading">
+          <div>
+            <p class="eyebrow">YOUR ACTIVITY</p>
+            <h2 id="tickets-title">Tickets</h2>
+          </div>
+          <span id="record-count" class="record-count">0 records</span>
+        </div>
+        <div class="csv-actions" aria-label="CSV data">
+          <label class="button button-quiet csv-import" for="csv-file">Import CSV</label>
+          <input id="csv-file" type="file" accept=".csv,text/csv" hidden>
+          <button id="export-csv" class="button button-quiet" type="button" disabled>Export CSV</button>
+        </div>
+        <p id="csv-status" class="csv-status" role="status" aria-live="polite" hidden></p>
+        <p id="csv-error" class="form-error" role="alert" hidden></p>
+        <div id="empty-state" class="empty-state">
+          <span class="empty-icon" aria-hidden="true">＋</span>
+          <h3>No tickets yet</h3>
+          <p>Add your first ticket to start your personal ledger.</p>
+        </div>
+        <div id="ticket-list" class="ticket-list" aria-live="polite"></div>
+        <p class="draft-note">
+          <span aria-hidden="true">ⓘ</span>
+          Records stay in this tab's memory only. Import replaces the current list;
+          export downloads a new CSV without changing your input file.
+        </p>
+      </section>
+
+      <section id="entry-panel" class="panel entry-panel main-tabpanel"
+        aria-labelledby="entry-tab" role="tabpanel" tabindex="0">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">NEW TICKET</p>
+            <h2 id="entry-title">Add a ticket</h2>
+          </div>
+          <span class="step-badge">01</span>
+        </div>
+
+        <form id="ticket-form" novalidate>
+          <div class="field ticket-game-field">
+            <label for="game">Game type</label>
+            <select id="game" name="game"></select>
           </div>
 
-          <form id="ticket-form" novalidate>
-            <div class="field">
-              <label for="game">Game type</label>
-              <select id="game" name="game"></select>
-            </div>
-
-            <div class="date-grid">
-              <fieldset class="field date-field">
-                <legend>Purchase date</legend>
-                <div class="date-inputs" data-date="purchase">
-                  <input aria-label="Purchase day" inputmode="numeric" maxlength="2" placeholder="DD" required>
-                  <span>/</span>
-                  <input aria-label="Purchase month" inputmode="numeric" maxlength="2" placeholder="MM" required>
-                  <span>/</span>
-                  <input aria-label="Purchase year" inputmode="numeric" maxlength="4" placeholder="YYYY" required>
-                </div>
-              </fieldset>
-              <fieldset class="field date-field">
-                <legend>Draw date</legend>
-                <div class="date-inputs" data-date="draw">
-                  <input aria-label="Draw day" inputmode="numeric" maxlength="2" placeholder="DD" required>
-                  <span>/</span>
-                  <input aria-label="Draw month" inputmode="numeric" maxlength="2" placeholder="MM" required>
-                  <span>/</span>
-                  <input aria-label="Draw year" inputmode="numeric" maxlength="4" placeholder="YYYY" required>
-                </div>
-              </fieldset>
-            </div>
-
-            <div class="field">
-              <div class="field-heading">
-                <label>Number combinations</label>
-                <span id="number-hint" class="field-hint"></span>
+          <div class="date-grid ticket-date-fields">
+            <fieldset class="field date-field">
+              <legend>Purchase date</legend>
+              <div class="date-inputs" data-date="purchase">
+                <input aria-label="Purchase day" inputmode="numeric" maxlength="2" placeholder="DD" required>
+                <span>/</span>
+                <input aria-label="Purchase month" inputmode="numeric" maxlength="2" placeholder="MM" required>
+                <span>/</span>
+                <input aria-label="Purchase year" inputmode="numeric" maxlength="4" placeholder="YYYY" required>
               </div>
-              <div id="number-sets" class="number-sets"></div>
-              <button id="add-set" class="button button-quiet add-set" type="button">
-                <span aria-hidden="true">＋</span> Add another
-              </button>
-            </div>
-
-            <div class="money-grid">
-              <div class="field">
-                <label for="paid">Amount paid</label>
-                <div class="money-input">
-                  <input id="paid" name="paid" type="number" min="0" step="1000" value="10000" required>
-                  <span>VND</span>
-                </div>
+            </fieldset>
+            <fieldset class="field date-field">
+              <legend>Draw date</legend>
+              <div class="date-inputs" data-date="draw">
+                <input aria-label="Draw day" inputmode="numeric" maxlength="2" placeholder="DD" required>
+                <span>/</span>
+                <input aria-label="Draw month" inputmode="numeric" maxlength="2" placeholder="MM" required>
+                <span>/</span>
+                <input aria-label="Draw year" inputmode="numeric" maxlength="4" placeholder="YYYY" required>
               </div>
-              <label class="voucher-toggle" for="free">
-                <input id="free" name="free" type="checkbox">
-                <span class="toggle-track" aria-hidden="true"></span>
-                <span><strong>FREE voucher</strong><small>Set amount paid to zero</small></span>
-              </label>
-            </div>
+            </fieldset>
+          </div>
 
-            <div class="money-grid prize-grid">
-              <div class="field">
-                <label for="result">Draw result</label>
-                <select id="result" name="result">
-                  <option value="pending">Pending draw</option>
-                  <option value="no_prize">No prize</option>
-                  <option value="won">Prize won</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="prize">Prize amount</label>
-                <div class="money-input">
-                  <input id="prize" name="prize" type="number" min="0" step="1000" value="0" required>
-                  <span>VND</span>
-                </div>
-              </div>
-            </div>
+          <div class="field ticket-draw-id-field">
+            <label for="draw-id">Draw number <span class="optional">(optional)</span></label>
+            <input id="draw-id" name="draw-id" type="text" inputmode="numeric" maxlength="12"
+              placeholder="Needed when several draws share one date">
+          </div>
 
-            <div class="field">
-              <label for="note">Note <span class="optional">(optional)</span></label>
-              <input id="note" name="note" type="text" maxlength="160" placeholder="Voucher, shop, or anything to remember">
+          <div class="field ticket-combinations-field">
+            <div class="field-heading">
+              <label>Number combinations</label>
+              <span id="number-hint" class="field-hint"></span>
             </div>
-
-            <p id="form-error" class="form-error" role="alert" hidden></p>
-            <button class="button button-primary submit-button" type="submit">
-              Add ticket <span aria-hidden="true">↗</span>
+            <div id="number-sets" class="number-sets"></div>
+            <button id="add-set" class="button button-quiet add-set" type="button">
+              <span aria-hidden="true">＋</span> Add another
             </button>
-          </form>
-        </section>
+          </div>
 
-        <section class="panel tickets-panel" aria-labelledby="tickets-title">
-          <div class="panel-heading tickets-heading">
-            <div>
-              <p class="eyebrow">YOUR ACTIVITY</p>
-              <h2 id="tickets-title">Tickets</h2>
+          <div class="money-grid ticket-cost-fields">
+            <div class="field">
+              <label for="paid">Amount paid</label>
+              <div class="money-input">
+                <input id="paid" name="paid" type="number" min="0" step="1000" value="10000" required>
+                <span>VND</span>
+              </div>
             </div>
-            <span id="record-count" class="record-count">0 records</span>
+            <label class="voucher-toggle" for="free">
+              <input id="free" name="free" type="checkbox">
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span><strong>FREE voucher</strong><small>Set amount paid to zero</small></span>
+            </label>
           </div>
-          <div class="csv-actions" aria-label="CSV data">
-            <label class="button button-quiet csv-import" for="csv-file">Import CSV</label>
-            <input id="csv-file" type="file" accept=".csv,text/csv" hidden>
-            <button id="export-csv" class="button button-quiet" type="button" disabled>Export CSV</button>
+
+          <div class="money-grid prize-grid ticket-prize-fields">
+            <div class="field">
+              <label for="result">Draw result</label>
+              <select id="result" name="result">
+                <option value="pending">Pending draw</option>
+                <option value="no_prize">No prize</option>
+                <option value="won">Prize won</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="prize">Prize amount</label>
+              <div class="money-input">
+                <input id="prize" name="prize" type="number" min="0" step="1000" value="0" required>
+                <span>VND</span>
+              </div>
+            </div>
           </div>
-          <p id="csv-status" class="csv-status" role="status" aria-live="polite" hidden></p>
-          <p id="csv-error" class="form-error" role="alert" hidden></p>
-          <div id="empty-state" class="empty-state">
-            <span class="empty-icon" aria-hidden="true">＋</span>
-            <h3>No tickets yet</h3>
-            <p>Add your first ticket to start your personal ledger.</p>
+
+          <div class="field ticket-note-field">
+            <label for="note">Note <span class="optional">(optional)</span></label>
+            <input id="note" name="note" type="text" maxlength="160" placeholder="Voucher, shop, or anything to remember">
           </div>
-          <div id="ticket-list" class="ticket-list" aria-live="polite"></div>
-          <p class="draft-note">
-            <span aria-hidden="true">ⓘ</span>
-            Records stay in this tab's memory only. Import replaces the current list;
-            export downloads a new CSV without changing your input file.
-          </p>
-        </section>
+
+          <p id="form-error" class="form-error" role="alert" hidden></p>
+          <button class="button button-primary submit-button" type="submit">
+            Add ticket <span aria-hidden="true">↗</span>
+          </button>
+        </form>
       </section>
     </main>
     <footer>
-      <span>DRAWLOG <span class="footer-separator">/</span> PERSONAL LEDGER</span>
+      <span>DRAWLOG <span class="footer-separator">/</span> PERSONAL RECORDS</span>
       <span>Not affiliated with Vietlott</span>
     </footer>
   </body>
