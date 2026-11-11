@@ -2,7 +2,7 @@
   "use strict";
   root.DrawlogResults = {
   "source_url": "https://vietlott.vn/",
-  "updated_at": "2026-11-10T21:43:07+00:00",
+  "updated_at": "2026-11-11T07:27:50+00:00",
   "products": [
     {
       "label": "Lotto 5/35",
@@ -299,35 +299,33 @@
     },
     {
       "label": "Keno",
-      "draw_id": "0302519",
-      "draw_date": "2026-11-10",
-      "source_url": "https://vietlott.vn/vi/trung-thuong/ket-qua-trung-thuong/winning-number-keno",
+      "draw_id": "302581",
+      "draw_date": "2026-11-11",
+      "source_url": "https://xoso.net.vn/xs-vietlott.html",
+      "source_label": "xoso.net.vn",
       "numbers": [
-        "06",
-        "10",
-        "15",
-        "19",
-        "36",
-        "43",
-        "46",
+        "03",
+        "04",
+        "05",
+        "13",
+        "18",
+        "21",
+        "24",
+        "32",
+        "37",
+        "38",
+        "40",
+        "48",
         "49",
         "50",
-        "52",
         "53",
-        "55",
-        "65",
-        "68",
-        "70",
-        "71",
+        "61",
+        "66",
+        "69",
         "72",
-        "74",
-        "75",
-        "76"
+        "78"
       ],
-      "parity": "Even (11)",
-      "size": "Big (15)",
-      "stale": true,
-      "source_label": "Vietlott"
+      "stale": false
     }
   ]
 };
