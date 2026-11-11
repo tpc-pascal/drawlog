@@ -16,6 +16,8 @@
   const exportButton = document.getElementById("export-csv");
   const tickets = [];
   const currency = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+  const latestResults = window.DrawlogResults.products;
+  const latestResultsList = document.getElementById("latest-results-list");
 
   Object.entries(games).forEach(([id, game]) => {
     const option = document.createElement("option");
@@ -179,6 +181,81 @@
 
   function formatMoney(amount) {
     return `${currency.format(amount)} ₫`;
+  }
+
+  function makeResultNumbers(numbers) {
+    const list = document.createElement("div");
+    list.className = "latest-result-numbers";
+    numbers.forEach((number) => {
+      const chip = document.createElement("span");
+      chip.className = "number-chip";
+      chip.textContent = number;
+      list.append(chip);
+    });
+    return list;
+  }
+
+  function renderLatestResults() {
+    latestResultsList.replaceChildren();
+    latestResults.forEach((result) => {
+      const card = document.createElement("article");
+      card.className = "latest-result-card";
+
+      const heading = document.createElement("div");
+      heading.className = "latest-result-heading";
+      const game = document.createElement("h3");
+      game.textContent = result.label;
+      const source = document.createElement("a");
+      source.href = result.source_url;
+      source.target = "_blank";
+      source.rel = "noopener noreferrer";
+      source.textContent = "Official";
+      source.setAttribute("aria-label", `${result.label} official results`);
+      heading.append(game, source);
+
+      const draw = document.createElement("p");
+      draw.className = "latest-result-draw";
+      draw.textContent = `#${result.draw_id} · ${formatDate(result.draw_date)}`;
+      card.append(heading, draw);
+
+      if (result.prize_groups) {
+        result.prize_groups.forEach((group) => {
+          const groupCard = document.createElement("section");
+          groupCard.className = "latest-prize-group";
+          const groupTitle = document.createElement("h4");
+          groupTitle.textContent = group.mode;
+          groupCard.append(groupTitle);
+          group.prizes.forEach((prize) => {
+            const prizeRow = document.createElement("div");
+            prizeRow.className = "latest-prize-row";
+            const prizeName = document.createElement("span");
+            prizeName.textContent = prize.prize;
+            prizeRow.append(prizeName, makeResultNumbers(prize.numbers));
+            groupCard.append(prizeRow);
+          });
+          card.append(groupCard);
+        });
+      } else {
+        card.append(makeResultNumbers(result.numbers));
+        if (result.special) {
+          const special = document.createElement("p");
+          special.className = "latest-result-detail";
+          special.textContent = `Special: ${result.special}`;
+          card.append(special);
+        }
+        const details = [];
+        if (result.total !== undefined) details.push(`Total ${result.total}`);
+        if (result.size) details.push(result.size);
+        if (result.parity) details.push(result.parity);
+        if (details.length) {
+          const detail = document.createElement("p");
+          detail.className = "latest-result-detail";
+          detail.textContent = details.join(" · ");
+          card.append(detail);
+        }
+      }
+      latestResultsList.append(card);
+    });
   }
 
   function isValidIsoDate(value) {
@@ -473,5 +550,6 @@
   });
 
   renderCombination();
+  renderLatestResults();
   renderTickets();
 })();

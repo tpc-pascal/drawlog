@@ -20,6 +20,8 @@ test("the app does not persist ticket data in browser storage or send it over th
 test("the static app loads local scripts and has no form upload target", () => {
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   assert.match(html, /<input id="csv-file" type="file" accept="\.csv,text\/csv" hidden>/);
+  assert.match(html, /<script src="web\/latest-results\.js" defer><\/script>/);
+  assert.match(html, /id="latest-results-list"/);
   assert.doesNotMatch(html, /<form[^>]+\baction\s*=/i);
   assert.doesNotMatch(html, /<(?:script|link)[^>]+https?:\/\//i);
 });

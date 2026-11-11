@@ -1,16 +1,36 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="Drawlog — lottery ticket tracker" width="380"/>
+  <img src="assets/logo.svg" alt="Drawlog" width="560"/>
 </p>
 
 <p align="center">
-  <a href="https://github.com/tpc-pascal/drawlog/stargazers"><img src="https://img.shields.io/github/stars/tpc-pascal/drawlog?label=stars" alt="GitHub stars"></a>
+  <a href="https://github.com/tpc-pascal/drawlog/stargazers"><img src="https://img.shields.io/github/stars/tpc-pascal/drawlog?label=Stars" alt="Stars"></a>
   <a href="https://github.com/tpc-pascal/drawlog/actions/workflows/ci.yml"><img src="https://github.com/tpc-pascal/drawlog/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/tpc-pascal/drawlog/issues"><img src="https://img.shields.io/github/issues/tpc-pascal/drawlog?label=issues" alt="Open issues"></a>
+  <a href="https://tpc-pascal-drawlog.hf.space"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Space-Drawlog-yellow" alt="Hugging Face Space"></a>
+  <a href="https://github.com/tpc-pascal/drawlog/issues"><img src="https://img.shields.io/github/issues/tpc-pascal/drawlog?label=Issues" alt="Issues"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
 </p>
 
-Drawlog is a personal Vietlott ticket ledger. Record number combinations,
-purchase and draw dates, spending, and prizes in a compact browser interface.
+Drawlog is a personal Vietlott ticket ledger. Track combinations, purchase and
+draw dates, spending, vouchers, and prizes in a responsive browser interface.
+Use it locally or open the [hosted Drawlog Space](https://tpc-pascal-drawlog.hf.space).
+
+Ticket records stay in the current tab's memory. Drawlog does not upload them or
+save them to browser storage; refreshing or closing the tab clears the records.
+The Space uses Gradio to serve the interface, while ticket records and imported
+CSV files are still processed only in your browser and are never sent to it.
+
+## Features
+
+- Record Power 6/55, Mega 6/45, Lotto 5/35, Bingo18, Max 3D, Max 3D Pro, and
+  Keno tickets with product-specific validation.
+- View the latest official draw results for every supported product; the public
+  snapshot is refreshed hourly.
+- Track purchase and draw dates, amount paid, FREE vouchers, results, prizes,
+  and notes.
+- Import a CSV, edit or remove records, and export the complete list to a new
+  CSV file.
+- Review ticket count, paid and prize totals, and net amount.
+- Keep all records in browser memory without an account or ticket-data backend.
 
 ## Run locally
 
@@ -20,27 +40,27 @@ cd drawlog
 python3 -m http.server 8000
 ```
 
-Open <http://localhost:8000> in a modern browser. No package installation or
-build step is required.
+Open <http://localhost:8000>. No package installation or build step is required.
 
-Ticket records stay in the current tab's memory only. They are lost when the
-page is refreshed or closed.
+## Hosted Space
 
-## Features
+Open [Drawlog on Hugging Face](https://tpc-pascal-drawlog.hf.space)
+to use the same app without installing anything. The Space is public. It serves
+the app files only; ticket records and CSV contents remain in your browser tab
+and are not uploaded or saved by Drawlog. As with other hosted services, the
+hosting provider may process ordinary network request metadata.
 
-- Enter purchase and draw dates as three `DD / MM / YYYY` fields.
-- Add number combinations for Power 6/55, Mega 6/45, Lotto 5/35, Bingo18,
-  Max 3D, Max 3D Pro, and Keno.
-- Validate number counts, ranges, and duplicates for supported games.
-- Record the amount paid, including a zero-cost FREE voucher, draw result,
-  prize amount, and an optional note.
-- Review ticket records and session totals for paid, prizes, and net amount.
-- Import a CSV, edit or remove tickets, and export the current list to a new
-  CSV file.
-- Use the responsive form on desktop and mobile screens.
+## Latest draw results
 
-Draw-result lookup, automatic prize matching, and persistent storage are not
-included. The interface does not send ticket data to a server.
+Drawlog includes a public snapshot of the latest results published on the
+[official Vietlott website](https://vietlott.vn/). A GitHub Actions workflow
+checks the homepage hourly, validates results for all seven products, and
+updates the hosted Space when any result changes. The app displays these results
+for reference only; it does not compare them with or change personal tickets.
+The snapshot is bundled with the app, so viewing it makes no background network
+request and does not send ticket data.
+
+## CSV
 
 Import requires the columns `game`, `purchase_date`, `draw_date`,
 `combinations`, `paid`, `prize`, and `result`; `note` is optional. Dates accept
@@ -56,60 +76,48 @@ from 1 to 80. The historical `mega_6_55` game ID and `Mega 6/55` label are
 accepted on import and normalized to Power 6/55. `result` values are `pending`,
 `no_prize`, and `won`.
 
-## Data and privacy
-
-Drawlog's source code is public. Ticket records currently remain in memory in
-the browser and are not sent to or stored by a server.
-
-Never commit ticket records, CSV files, credentials, or other personal data to
-this public repository. If CSV storage is introduced, keep those files in a
-separate private repository or private storage; GitHub Releases on this public
-repository are public too.
+The whole file is validated before import. Importing over existing records
+requires confirmation. Export downloads a new file and never changes the
+selected input file.
 
 ## Project structure
 
 | Path | Purpose |
 |---|---|
 | [`index.html`](index.html) | Ticket entry page and live summary |
-| [`web/app.js`](web/app.js) | Form interactions and in-session ticket list |
+| [`web/app.js`](web/app.js) | Ticket entry, editing, and session-only records |
+| [`web/games.js`](web/games.js) | Supported games and combination validation |
 | [`web/csv.js`](web/csv.js) | In-memory CSV parsing, validation, and export |
-| [`web/games.js`](web/games.js) | Game definitions and number validation |
-| [`web/styles.css`](web/styles.css) | Responsive interface styling |
-| [`tests/`](tests/) | Game, CSV, privacy, and hosted-runtime tests |
-| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Automated tests and syntax checks |
-| [`assets/logo.svg`](assets/logo.svg) | Drawlog wordmark |
-| [`assets/social-preview.svg`](assets/social-preview.svg) | Editable social preview artwork |
-| [`assets/social-preview.png`](assets/social-preview.png) | GitHub social preview image |
+| [`web/latest-results.js`](web/latest-results.js) | Public latest-draw snapshot bundled with the app |
+| [`web/styles.css`](web/styles.css) | Responsive interface |
+| [`tests/`](tests/) | Game validation, CSV, and privacy tests |
+| [`scripts/update_latest_draws.py`](scripts/update_latest_draws.py) | Official result parsing and snapshot generation |
+| [`app.py`](app.py) and [`requirements.txt`](requirements.txt) | Gradio host for the browser-only interface |
+| [`.github/workflows/`](.github/workflows/) | CI, release, and Space maintenance workflows |
+| [`scripts/check`](scripts/check) and [`scripts/release.sh`](scripts/release.sh) | Local validation and version tagging |
+| [`assets/`](assets/) | Logo and social preview artwork |
 
 ## Checks
 
-Run the game validation tests with Node.js:
-
 ```bash
-node --test
+./scripts/check
 ```
 
-Check JavaScript syntax with:
-
-```bash
-node --check web/games.js
-node --check web/app.js
-```
+Prepare a release by moving the relevant changelog entries into a dated
+`## [vX.Y.Z]` section, then run `./scripts/release.sh vX.Y.Z`.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the lightweight contribution
-workflow. Do not include personal ticket CSV files, credentials, or other
-private records in commits or issue reports.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the development workflow. Keep
+ticket records, CSV files, credentials, and other personal data out of this
+public repository, its release assets, and its Git history.
 
 ## Security
 
-For security concerns, see [SECURITY.md](SECURITY.md). Do not report ticket
-data or credentials in a security report.
+Report vulnerabilities privately as described in [`SECURITY.md`](SECURITY.md).
+Do not include ticket records, CSV files, or credentials in a report.
 
 ## License
 
-[MIT](LICENSE) © tpc-pascal.
-
-Drawlog is a personal project and is not affiliated with or endorsed by
-Vietlott.
+MIT — see [`LICENSE`](LICENSE). Drawlog is an independent personal project and
+is not affiliated with or endorsed by Vietlott.

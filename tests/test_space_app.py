@@ -23,6 +23,7 @@ class SpaceAppTests(unittest.TestCase):
 
         self.assertIn("DrawlogGames", javascript)
         self.assertIn("DrawlogCsv", javascript)
+        self.assertIn("DrawlogResults", javascript)
         self.assertIn('document.getElementById("ticket-form")', javascript)
         self.assertIn(".gradio-container", styles)
         self.assertIn("#drawlog-app select", styles)

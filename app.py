@@ -67,7 +67,7 @@ def build_styles() -> str:
 def build_javascript() -> str:
     scripts = [
         (ROOT / "web" / filename).read_text(encoding="utf-8")
-        for filename in ("games.js", "csv.js", "app.js")
+        for filename in ("games.js", "csv.js", "latest-results.js", "app.js")
     ]
     return f"""() => {{
       const scripts = {json.dumps(scripts)};

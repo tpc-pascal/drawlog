@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="web/styles.css">
     <script src="web/games.js" defer></script>
     <script src="web/csv.js" defer></script>
+    <script src="web/latest-results.js" defer></script>
     <script src="web/app.js" defer></script>
   </head>
   <body>
@@ -43,6 +44,20 @@
           <span class="summary-label">Net</span>
           <strong id="net-total">0 ₫</strong>
         </article>
+      </section>
+
+      <section class="panel latest-results-panel" aria-labelledby="latest-results-title">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">DRAW RESULTS</p>
+            <h2 id="latest-results-title">Latest results</h2>
+          </div>
+          <span class="results-cadence">Updated hourly</span>
+        </div>
+        <div id="latest-results-list" class="latest-results-grid" aria-live="polite"></div>
+        <p class="results-disclaimer">
+          Results are for reference only. Drawlog does not automatically check or change your tickets.
+        </p>
       </section>
 
       <section class="workspace">
