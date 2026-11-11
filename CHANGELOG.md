@@ -7,6 +7,8 @@ All notable changes to Drawlog are documented here. The format follows
 
 ### Added
 
+- Add ticket entry and validation for active Vietlott products, while retaining
+  compatibility with historical Mega 6/55 CSV imports.
 - Add a browser-only ticket ledger with product validation, CSV import/export,
   ticket editing, and session totals.
 - Add centered Drawlog branding, a social preview, and working project badges.

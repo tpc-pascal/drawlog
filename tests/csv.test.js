@@ -17,10 +17,10 @@ test("parses quoted CSV fields, escaped quotes, CRLF, and a UTF-8 BOM", () => {
 test("imports valid tickets with flexible column order and optional notes", () => {
   const tickets = parseTickets(
     "result,game,draw_date,combinations,paid,purchase_date,prize\r\n" +
-      "won,Mega 6/55,2026-11-12,01 09 18 27 41 55,10000,09/11/2026,50000\r\n",
+      "won,Power 6/55,2026-11-12,01 09 18 27 41 55,10000,09/11/2026,50000\r\n",
   );
   assert.deepEqual(tickets, [{
-    game: "mega_6_55",
+    game: "power_6_55",
     purchaseDate: "2026-11-09",
     drawDate: "2026-11-12",
     combinations: [["01", "09", "18", "27", "41", "55"]],
@@ -32,7 +32,33 @@ test("imports valid tickets with flexible column order and optional notes", () =
 });
 
 test("round-trips exported tickets including commas, quotes, and line breaks", () => {
-  const tickets = parseTickets(`${header}\nmega_6_55,2026-11-09,2026-11-12,"01 09 18 27 41 55",10000,0,pending,"shop, ""A""\nwindow"`);
+  const tickets = parseTickets(`${header}\npower_6_55,2026-11-09,2026-11-12,"01 09 18 27 41 55",10000,0,pending,"shop, ""A""\nwindow"`);
+  assert.deepEqual(parseTickets(stringifyTickets(tickets)), tickets);
+});
+
+test("imports historical Mega 6/55 ids and labels as Power 6/55", () => {
+  for (const game of ["mega_6_55", "Mega 6/55"]) {
+    const ticket = parseTickets(
+      `${header}\n${game},2026-11-09,2026-11-12,"01 09 18 27 41 55",10000,0,pending,`,
+    )[0];
+    assert.equal(ticket.game, "power_6_55");
+  }
+});
+
+test("imports each supported product's combination format", () => {
+  const tickets = parseTickets(
+    `${header}\n` +
+      `lotto_5_35,2026-11-09,2026-11-12,"01 09 18 27 35 12",10000,0,pending,\n` +
+      `bingo_18,2026-11-09,2026-11-12,big,10000,0,pending,\n` +
+      `max_3d_pro,2026-11-09,2026-11-12,"007 123",10000,0,pending,\n` +
+      `keno,2026-11-09,2026-11-12,"01 08 80",10000,0,pending,`,
+  );
+  assert.deepEqual(tickets.map(({ game, combinations }) => [game, combinations]), [
+    ["lotto_5_35", [["01", "09", "18", "27", "35", "12"]]],
+    ["bingo_18", [["big"]]],
+    ["max_3d_pro", [["007", "123"]]],
+    ["keno", [["01", "08", "80"]]],
+  ]);
   assert.deepEqual(parseTickets(stringifyTickets(tickets)), tickets);
 });
 
@@ -54,7 +80,7 @@ test("rejects malformed ticket data before returning imported records", () => {
 
 test("protects exported notes from spreadsheet formula execution", () => {
   const csv = stringifyTickets([{
-    game: "mega_6_55",
+    game: "power_6_55",
     purchaseDate: "2026-11-09",
     drawDate: "2026-11-12",
     combinations: [["01", "09", "18", "27", "41", "55"]],

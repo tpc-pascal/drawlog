@@ -29,7 +29,8 @@ page is refreshed or closed.
 ## Features
 
 - Enter purchase and draw dates as three `DD / MM / YYYY` fields.
-- Add number combinations for Mega 6/55, Mega 6/45, and Max 3D.
+- Add number combinations for Power 6/55, Mega 6/45, Lotto 5/35, Bingo18,
+  Max 3D, Max 3D Pro, and Keno.
 - Validate number counts, ranges, and duplicates for supported games.
 - Record the amount paid, including a zero-cost FREE voucher, draw result,
   prize amount, and an optional note.
@@ -40,6 +41,20 @@ page is refreshed or closed.
 
 Draw-result lookup, automatic prize matching, and persistent storage are not
 included. The interface does not send ticket data to a server.
+
+Import requires the columns `game`, `purchase_date`, `draw_date`,
+`combinations`, `paid`, `prize`, and `result`; `note` is optional. Dates accept
+`YYYY-MM-DD` or `DD/MM/YYYY`. Separate combinations with semicolons and numbers
+within a combination with spaces. Supported `game` values are `power_6_55`,
+`mega_6_45`, `lotto_5_35`, `bingo_18`, `max_3d`, `max_3d_pro`, and `keno`.
+Power 6/55 and Mega 6/45 require six distinct numbers in their respective
+ranges. Lotto 5/35 uses five main numbers followed by its special number.
+Bingo18 accepts `big`, `small`, `even`, `odd`, `sum_3` through `sum_18`,
+`pair_1` through `pair_6`, or `triple_1` through `triple_6`. Max 3D takes one
+three-digit number; Max 3D Pro takes two. Keno takes one to ten distinct numbers
+from 1 to 80. The historical `mega_6_55` game ID and `Mega 6/55` label are
+accepted on import and normalized to Power 6/55. `result` values are `pending`,
+`no_prize`, and `won`.
 
 ## Data and privacy
 

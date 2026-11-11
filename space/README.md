@@ -15,8 +15,11 @@ short_description: Private-by-design Vietlott ticket ledger
 
 A browser-based personal Vietlott ticket ledger.
 
-Ticket records stay in the current browser tab and are cleared when the tab is
-refreshed or closed.
+The ledger supports Mega 6/55, Mega 6/45, Power 6/55, Lotto 5/35, Bingo18,
+Max 3D, Max 3D Pro, and Keno.
+
+The browser-only ledger keeps ticket records and imported CSV contents in the
+current tab. They are cleared when the tab is refreshed or closed.
 
 See the [Drawlog repository](https://github.com/tpc-pascal/drawlog) for local
 setup, CSV format, and project details.

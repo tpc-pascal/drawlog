@@ -34,15 +34,47 @@
   function addCombination() {
     const game = games[gameSelect.value];
     const row = document.createElement("div");
-    row.className = `number-row ${game.kind === "three_digit" ? "number-row-three" : ""}`;
+    row.className = `number-row${game.kind === "three_digit" ? " number-row-three" : ""}`;
+    if (game.kind === "three_digit_pair") row.classList.add("number-row-pair");
+    if (game.kind === "keno") row.classList.add("number-row-keno");
+    if (game.kind === "lotto_special") row.classList.add("number-row-special");
+    if (game.kind === "bingo18") row.classList.add("number-row-bingo18");
     row.setAttribute("role", "group");
     row.setAttribute("aria-label", `Combination ${numberSets.children.length + 1}`);
 
-    if (game.kind === "three_digit") {
-      row.append(makeNumberInput("Three-digit number", "000", 3));
+    if (game.kind === "bingo18") {
+      const select = document.createElement("select");
+      select.setAttribute("aria-label", "Bingo18 outcome");
+      game.choices.forEach((choice) => {
+        const option = document.createElement("option");
+        option.value = choice.value;
+        option.textContent = choice.label;
+        select.append(option);
+      });
+      row.append(select);
+    } else if (game.kind === "three_digit" || game.kind === "three_digit_pair") {
+      for (let index = 0; index < game.count; index += 1) {
+        row.append(makeNumberInput(
+          game.count === 1 ? "Three-digit number" : `Three-digit number ${index + 1}`,
+          "000",
+          3,
+          true,
+        ));
+      }
+    } else if (game.kind === "lotto_special") {
+      for (let index = 0; index < game.mainCount; index += 1) {
+        row.append(makeNumberInput(`Main number ${index + 1}`, String(index + 1).padStart(2, "0"), 2, true));
+      }
+      const special = makeNumberInput("Special number", "SP", 2, true);
+      special.classList.add("special-number");
+      row.append(special);
+    } else if (game.kind === "keno") {
+      for (let index = 0; index < game.count; index += 1) {
+        row.append(makeNumberInput(`Keno number ${index + 1}`, String(index + 1).padStart(2, "0"), 2, false));
+      }
     } else {
       for (let index = 0; index < game.count; index += 1) {
-        row.append(makeNumberInput(`Number ${index + 1}`, String(index + 1).padStart(2, "0"), 2));
+        row.append(makeNumberInput(`Number ${index + 1}`, String(index + 1).padStart(2, "0"), 2, true));
       }
     }
 
@@ -60,7 +92,7 @@
     numberSets.append(row);
   }
 
-  function makeNumberInput(label, placeholder, maxLength) {
+  function makeNumberInput(label, placeholder, maxLength, required) {
     const input = document.createElement("input");
     input.type = "text";
     input.inputMode = "numeric";
@@ -68,7 +100,7 @@
     input.maxLength = maxLength;
     input.placeholder = placeholder;
     input.setAttribute("aria-label", label);
-    input.required = true;
+    input.required = required;
     input.addEventListener("input", () => {
       input.value = input.value.replace(/\D/g, "").slice(0, maxLength);
     });
@@ -119,8 +151,20 @@
 
   function readCombinations() {
     return Array.from(numberSets.children, (row) =>
-      Array.from(row.querySelectorAll("input"), (input) => input.value.trim()),
+      Array.from(row.querySelectorAll("input, select"), (input) => input.value.trim())
+        .filter((value) => value !== ""),
     );
+  }
+
+  function formatCombination(gameId, combination) {
+    const game = games[gameId];
+    if (game.kind === "bingo18") {
+      return game.choices.find((choice) => choice.value === combination[0])?.label || combination[0];
+    }
+    if (game.kind === "lotto_special") {
+      return `${combination.slice(0, game.mainCount).join(" · ")} · SP ${combination[game.mainCount]}`;
+    }
+    return combination.join(" · ");
   }
 
   function showError(message) {
@@ -272,7 +316,7 @@
       const card = document.createElement("article");
       card.className = "ticket-card";
       const combinations = ticket.combinations.map((combination) =>
-        `<span class="number-chip">${combination.map(escapeHtml).join(" · ")}</span>`,
+        `<span class="number-chip">${escapeHtml(formatCombination(ticket.game, combination))}</span>`,
       ).join("");
       const resultLabel = {
         pending: "Pending draw",
@@ -319,7 +363,7 @@
   document.getElementById("add-set").addEventListener("click", () => {
     addCombination();
     updateCombinationRows();
-    numberSets.lastElementChild.querySelector("input").focus();
+    numberSets.lastElementChild.querySelector("input, select").focus();
   });
   freeInput.addEventListener("change", () => {
     paidInput.value = freeInput.checked ? "0" : "10000";

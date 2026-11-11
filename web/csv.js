@@ -1,7 +1,7 @@
 (function (root) {
   "use strict";
 
-  const { games, validateCombinations } = root.DrawlogGames;
+  const { games, normalizeGameId, validateCombinations } = root.DrawlogGames;
   const headers = ["game", "purchase_date", "draw_date", "combinations", "paid", "prize", "result", "note"];
   const requiredHeaders = headers.filter((header) => header !== "note");
   const results = new Set(["pending", "no_prize", "won"]);
@@ -104,9 +104,9 @@
 
   function parseGame(value, rowNumber) {
     const normalized = value.trim().toLowerCase();
-    const match = Object.entries(games).find(([id, game]) =>
-      id.toLowerCase() === normalized || game.label.toLowerCase() === normalized,
-    );
+    const gameId = normalizeGameId(normalized);
+    if (games[gameId]) return gameId;
+    const match = Object.entries(games).find(([, game]) => game.label.toLowerCase() === normalized);
     if (!match) throw new Error(`Row ${rowNumber}: unsupported game "${value}".`);
     return match[0];
   }
