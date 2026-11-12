@@ -2,7 +2,7 @@
   "use strict";
   root.DrawlogResults = {
   "source_url": "https://vietlott.vn/",
-  "updated_at": "2026-11-12T03:34:05+00:00",
+  "updated_at": "2026-11-12T12:06:52+00:00",
   "products": [
     {
       "label": "Lotto 5/35",
@@ -190,7 +190,7 @@
         }
       ],
       "source_label": "xoso.net.vn",
-      "stale": false
+      "stale": true
     },
     {
       "label": "Power 6/55",
@@ -207,7 +207,7 @@
       ],
       "special": "12",
       "source_label": "xoso.net.vn",
-      "stale": false
+      "stale": true
     },
     {
       "label": "Mega 6/45",
@@ -223,7 +223,7 @@
         "43"
       ],
       "source_label": "xoso.net.vn",
-      "stale": false
+      "stale": true
     },
     {
       "label": "Bingo18",
@@ -268,7 +268,7 @@
         "78",
         "80"
       ],
-      "stale": false
+      "stale": true
     }
   ]
 };
