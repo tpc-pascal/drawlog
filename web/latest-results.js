@@ -2,7 +2,7 @@
   "use strict";
   root.DrawlogResults = {
   "source_url": "https://vietlott.vn/",
-  "updated_at": "2026-11-15T16:02:16+00:00",
+  "updated_at": "2026-11-15T21:26:51+00:00",
   "products": [
     {
       "label": "Lotto 5/35",
@@ -206,7 +206,7 @@
         "72",
         "76"
       ],
-      "stale": false
+      "stale": true
     }
   ]
 };
