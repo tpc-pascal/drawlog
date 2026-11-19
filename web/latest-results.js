@@ -2,7 +2,7 @@
   "use strict";
   root.DrawlogResults = {
   "source_url": "https://vietlott.vn/",
-  "updated_at": "2026-11-19T01:39:03+00:00",
+  "updated_at": "2026-11-19T09:47:17+00:00",
   "products": [
     {
       "label": "Lotto 5/35",
@@ -180,31 +180,31 @@
     },
     {
       "label": "Keno",
-      "draw_id": "303490",
+      "draw_id": "303550",
       "draw_date": "2026-11-19",
       "source_url": "https://xoso.net.vn/xs-vietlott.html",
       "source_label": "xoso.net.vn",
       "numbers": [
-        "07",
-        "08",
-        "16",
+        "01",
+        "02",
+        "17",
         "20",
         "25",
         "27",
-        "28",
-        "30",
-        "32",
+        "29",
+        "31",
         "33",
-        "40",
-        "42",
-        "45",
-        "47",
+        "36",
+        "51",
+        "53",
+        "60",
         "62",
-        "63",
-        "72",
+        "64",
+        "67",
+        "69",
         "73",
-        "74",
-        "75"
+        "78",
+        "79"
       ],
       "stale": false
     }
