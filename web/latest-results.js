@@ -2,7 +2,7 @@
   "use strict";
   root.DrawlogResults = {
   "source_url": "https://vietlott.vn/",
-  "updated_at": "2026-11-24T08:06:25+00:00",
+  "updated_at": "2026-11-24T19:53:26+00:00",
   "products": [
     {
       "label": "Lotto 5/35",
@@ -22,8 +22,8 @@
     },
     {
       "label": "Max 3D Pro",
-      "draw_id": "808",
-      "draw_date": "2026-11-21",
+      "draw_id": "809",
+      "draw_date": "2026-11-24",
       "source_url": "https://xoso.net.vn/xs-vietlott.html",
       "prize_groups": [
         {
@@ -32,41 +32,41 @@
             {
               "prize": "Special",
               "numbers": [
-                "487",
-                "773"
+                "373",
+                "050"
               ]
             },
             {
               "prize": "First",
               "numbers": [
-                "418",
-                "917",
-                "994",
-                "702"
+                "900",
+                "441",
+                "702",
+                "140"
               ]
             },
             {
               "prize": "Second",
               "numbers": [
-                "196",
-                "114",
-                "133",
-                "958",
-                "541",
-                "017"
+                "033",
+                "212",
+                "709",
+                "921",
+                "718",
+                "270"
               ]
             },
             {
               "prize": "Third",
               "numbers": [
-                "959",
-                "097",
-                "103",
-                "644",
-                "624",
-                "556",
-                "651",
-                "209"
+                "198",
+                "434",
+                "402",
+                "984",
+                "477",
+                "948",
+                "890",
+                "774"
               ]
             }
           ]
@@ -132,18 +132,18 @@
     },
     {
       "label": "Power 6/55",
-      "draw_id": "1427",
-      "draw_date": "2026-11-21",
+      "draw_id": "1428",
+      "draw_date": "2026-11-24",
       "source_url": "https://xoso.net.vn/xs-vietlott.html",
       "numbers": [
-        "07",
-        "29",
-        "44",
-        "45",
+        "36",
+        "40",
+        "43",
+        "46",
         "50",
-        "54"
+        "55"
       ],
-      "special": "39",
+      "special": "15",
       "source_label": "xoso.net.vn",
       "stale": false
     },
@@ -180,31 +180,31 @@
     },
     {
       "label": "Keno",
-      "draw_id": "304133",
-      "draw_date": "2026-11-24",
+      "draw_id": "304185",
+      "draw_date": "2026-11-25",
       "source_url": "https://xoso.net.vn/xs-vietlott.html",
       "source_label": "xoso.net.vn",
       "numbers": [
         "01",
-        "02",
-        "07",
-        "19",
+        "12",
         "20",
-        "31",
-        "32",
-        "39",
-        "40",
+        "24",
+        "25",
+        "26",
+        "27",
+        "35",
+        "42",
         "44",
-        "50",
-        "54",
-        "60",
-        "63",
+        "45",
+        "48",
+        "53",
+        "59",
+        "64",
         "66",
-        "69",
-        "75",
+        "67",
+        "74",
         "76",
-        "78",
-        "80"
+        "77"
       ],
       "stale": false
     }
