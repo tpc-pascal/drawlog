@@ -2,7 +2,7 @@
   "use strict";
   root.DrawlogResults = {
   "source_url": "https://vietlott.vn/",
-  "updated_at": "2026-11-27T06:26:06+00:00",
+  "updated_at": "2026-11-27T17:10:29+00:00",
   "products": [
     {
       "label": "Lotto 5/35",
@@ -149,16 +149,16 @@
     },
     {
       "label": "Mega 6/45",
-      "draw_id": "1593",
-      "draw_date": "2026-11-25",
+      "draw_id": "1594",
+      "draw_date": "2026-11-27",
       "source_url": "https://xoso.net.vn/xs-vietlott.html",
       "numbers": [
-        "01",
-        "13",
-        "16",
+        "05",
         "23",
-        "24",
-        "38"
+        "27",
+        "35",
+        "38",
+        "45"
       ],
       "source_label": "xoso.net.vn",
       "stale": false
@@ -180,31 +180,31 @@
     },
     {
       "label": "Keno",
-      "draw_id": "304477",
-      "draw_date": "2026-11-27",
+      "draw_id": "304542",
+      "draw_date": "2026-11-28",
       "source_url": "https://xoso.net.vn/xs-vietlott.html",
       "source_label": "xoso.net.vn",
       "numbers": [
-        "01",
-        "02",
-        "06",
-        "07",
+        "04",
         "08",
-        "11",
-        "13",
-        "19",
+        "12",
+        "21",
         "22",
-        "25",
+        "24",
+        "26",
+        "27",
+        "28",
+        "29",
         "30",
-        "33",
-        "34",
-        "38",
-        "54",
-        "59",
-        "62",
-        "63",
-        "68",
-        "73"
+        "32",
+        "39",
+        "57",
+        "58",
+        "66",
+        "70",
+        "71",
+        "75",
+        "80"
       ],
       "stale": false
     }
